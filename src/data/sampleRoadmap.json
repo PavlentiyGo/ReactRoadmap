@@ -1,0 +1,34 @@
+{
+  "title": "Дорожная карта по изучению React",
+  "description": "Комплексное руководство по изучению React от основ до продвинутого уровня",
+  "items": [
+    {
+      "id": "1",
+      "name": "Основы JSX",
+      "description": "Понимание синтаксиса JSX и его особенностей.",
+      "resources": [
+        {
+          "name": "Официальная документация React",
+          "url": "https://reactjs.org/docs/introducing-jsx.html"
+        }
+      ],
+      "status": "not-started",
+      "dueDate": "",
+      "note": ""
+    },
+    {
+      "id": "2",
+      "name": "Компоненты и Props",
+      "description": "Изучение написания переиспользуемых компонентов.",
+      "resources": [
+        {
+          "name": "Компоненты React",
+          "url": "https://reactjs.org/docs/components-and-props.html"
+        }
+      ],
+      "status": "not-started",
+      "dueDate": "",
+      "note": ""
+    }
+  ]
+}

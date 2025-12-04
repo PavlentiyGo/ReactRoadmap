@@ -1,10 +1,10 @@
 // src/App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import RoadmapLoader from './components/roadmapLoader';
 import ProgressBar from './components/progressBar';
 import RoadmapGrid from './components/roadmapGrid';
-import ItemDetailPage from './components/itemDetailPage';
+import ItemDetailPage from './components/itemDetailPage.js';
 import { exportRoadmapToFile } from './utils/roadmapUtils';
 
 const App = () => {
@@ -41,20 +41,6 @@ const App = () => {
     }
   };
 
-  // Фильтрация элементов
-  const filteredItems = roadmap?.items.filter(item => {
-    if (filter === 'all') return true;
-    return item.status === filter;
-  }) || [];
-
-  // Подсчет статистики
-  const stats = {
-    total: roadmap?.items.length || 0,
-    completed: roadmap?.items.filter(i => i.status === 'completed').length || 0,
-    inProgress: roadmap?.items.filter(i => i.status === 'in-progress').length || 0,
-    notStarted: roadmap?.items.filter(i => i.status === 'not-started').length || 0,
-  };
-
   if (!roadmap) {
     return (
       <div style={styles.container}>
@@ -64,6 +50,19 @@ const App = () => {
       </div>
     );
   }
+
+  // --- Логика фильтрации теперь находится внутри маршрута / ---
+  const filteredItems = roadmap?.items.filter(item => {
+    if (filter === 'all') return true;
+    return item.status === filter;
+  }) || [];
+
+  const stats = {
+    total: roadmap?.items.length || 0,
+    completed: roadmap?.items.filter(i => i.status === 'completed').length || 0,
+    inProgress: roadmap?.items.filter(i => i.status === 'in-progress').length || 0,
+    notStarted: roadmap?.items.filter(i => i.status === 'not-started').length || 0,
+  };
 
   return (
     <div style={styles.container}>
@@ -76,7 +75,6 @@ const App = () => {
               <h1 style={styles.header}>{roadmap.title}</h1>
               <p style={styles.description}>{roadmap.description}</p>
               <div style={styles.controls}>
-                {/* Кнопка "Назад к списку" здесь не нужна, так как мы уже на главной */}
                 <button onClick={handleExport} style={styles.button}>
                   Экспортировать дорожную карту
                 </button>
@@ -117,6 +115,7 @@ const App = () => {
             </section>
 
             <main style={styles.main}>
+              {/* --- Передаем отфильтрованные items --- */}
               <RoadmapGrid items={filteredItems} />
             </main>
           </>
@@ -131,57 +130,85 @@ const App = () => {
   );
 };
 
-// Стили остаются без изменений
 const styles = {
   container: {
-    padding: '20px',
-    fontFamily: 'Arial, sans-serif',
-    maxWidth: '1200px',
+    padding: '20px 40px',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    maxWidth: '1400px',
     margin: '0 auto',
+    backgroundColor: '#fff',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+    minHeight: '100vh',
   },
   headerSection: {
     marginBottom: '20px',
-    borderBottom: '2px solid #ccc',
-    paddingBottom: '10px',
+    borderBottom: '1px solid #eaecef',
+    paddingBottom: '20px',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '8px 8px 0 0',
+    padding: '15px',
   },
   header: {
-    fontSize: '2em',
-    margin: 0,
-    color: '#333',
+    fontSize: '2.2em',
+    margin: '0 0 10px 0',
+    color: '#2c3e50',
   },
   description: {
     fontSize: '1.1em',
-    color: '#666',
-    margin: '10px 0',
+    color: '#7f8c8d',
+    margin: '5px 0',
   },
   controls: {
     display: 'flex',
-    justifyContent: 'flex-end',
-    marginTop: '10px',
+    justifyContent: 'space-between',
+    marginTop: '15px',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#3498db',
     color: 'white',
     border: 'none',
-    padding: '10px 20px',
-    borderRadius: '4px',
+    padding: '12px 24px',
+    borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '1em',
+    fontWeight: '500',
+    transition: 'background-color 0.2s',
+  },
+  linkButton: {
+    backgroundColor: '#95a5a6',
+    color: 'white',
+    padding: '12px 24px',
+    borderRadius: '6px',
+    textDecoration: 'none',
+    fontSize: '1em',
+    fontWeight: '500',
+    transition: 'background-color 0.2s',
   },
   statsSection: {
-    display: 'flex',
-    justifyContent: 'space-around',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: '15px',
     marginBottom: '20px',
-    flexWrap: 'wrap',
   },
   statBox: {
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #dee2e6',
-    borderRadius: '4px',
+    backgroundColor: '#ecf0f1',
+    border: '1px solid #d5dbdb',
+    borderRadius: '8px',
     padding: '15px',
     textAlign: 'center',
-    minWidth: '120px',
-    margin: '5px',
+    transition: 'transform 0.2s',
+  },
+  statBoxH3: {
+    margin: '0 0 5px 0',
+    fontSize: '1em',
+    color: '#7f8c8d',
+  },
+  statBoxP: {
+    margin: '0',
+    fontSize: '1.5em',
+    fontWeight: 'bold',
+    color: '#2c3e50',
   },
   progressBarSection: {
     marginBottom: '20px',
@@ -190,15 +217,19 @@ const styles = {
     marginBottom: '20px',
     display: 'flex',
     alignItems: 'center',
+    gap: '10px',
   },
   select: {
-    marginLeft: '10px',
-    padding: '5px',
+    padding: '8px 12px',
     fontSize: '1em',
+    borderRadius: '4px',
+    border: '1px solid #bdc3c7',
+    backgroundColor: '#fff',
   },
   main: {
     display: 'flex',
     flexWrap: 'wrap',
+    gap: '16px',
   },
 };
 

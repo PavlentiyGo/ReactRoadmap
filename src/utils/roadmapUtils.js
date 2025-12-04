@@ -1,3 +1,5 @@
+// src/utils/roadmapUtils.js
+
 export const loadRoadmapFromFile = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -13,16 +15,47 @@ export const loadRoadmapFromFile = (file) => {
   });
 };
 
+// --- Обновленная функция экспорта ---
 export const exportRoadmapToFile = (roadmap, filename = 'roadmap.json') => {
-  const dataStr = JSON.stringify(roadmap, null, 2);
-  const dataUri = 'application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  try {
+    // Проверяем, что roadmap существует
+    if (!roadmap) {
+      console.error("Невозможно экспортировать: roadmap отсутствует.");
+      alert("Невозможно экспортировать: данные дорожной карты отсутствуют.");
+      return;
+    }
 
-  const link = document.createElement('a');
-  link.setAttribute('href', dataUri);
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    // Сериализуем объект в JSON с отступами для читаемости
+    const dataStr = JSON.stringify(roadmap, null, 2);
+    if (dataStr === undefined || dataStr === "undefined") {
+      console.error("Сериализация roadmap в строку не удалась.");
+      alert("Ошибка при подготовке данных для экспорта.");
+      return;
+    }
+
+    // Создаем Blob из строки данных
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+    // --- Используем URL.createObjectURL вместо data URI ---
+    const url = URL.createObjectURL(dataBlob);
+
+    // Создаем временный элемент <a>
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename; // Устанавливаем имя файла
+
+    // Добавляем элемент в DOM, кликаем и удаляем
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // --- Очень важно: освобождаем созданный URL ---
+    URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("Ошибка при экспорте дорожной карты: ", error);
+    alert("Произошла ошибка при попытке экспорта файла: " + error.message);
+  }
 };
 
 export const calculateProgress = (items) => {
